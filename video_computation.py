@@ -65,6 +65,9 @@ detected = True
 orig_frame = []
 scoreboard = []
 tracker = []
+ball_color_lower = (12, 38, 9)
+ball_color_higher = (25, 88, 78)
+points = deque(maxlen=args["buffer"])
 
 vid = cv2.VideoCapture("2017 Golden State Warriors vs Cleveland Cavaliers Game 4.mov")
 '''with open("coco.names", "rt") as n:
@@ -76,11 +79,10 @@ neural_network.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)'''
 while True:
     # frame size : 720, 1280
     ret, frame = vid.read()
-    # frame = imutils.resize(frame, width=600)
+    frame = imutils.resize(frame, width=600)
     if not ret:
         print("Video over")
         break
-    # resized_frame size : 168, 300
     if scoreboard_established:
         (success, boxes) = tracker.update(frame)
         if not success:
@@ -109,6 +111,12 @@ while True:
                 t, _ = neural_network.getPerfProfile()
                 label = 'Inference time: %.2f ms' % (t * 1000.0 / cv2.getTickFrequency())
                 cv2.putText(frame, label, (0, 15), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255))'''
+                blurred_frame = cv2.GaussianBlur(frame, (11, 11), 0)
+                hsv_frame = cv2.cvtColor(blurred_frame, cv2.COLOR_BGR2HSV)
+                masked_frame = cv2.inRange(hsv_frame, ball_color_lower, ball_color_higher)
+                masked_frame = cv2.erode(masked_frame, None, iterations=2)
+                masked_frame = cv2.dilate(masked_frame, None, iterations=2)
+                cv2.imshow("game", masked_frame)
             else:
                 detected = False
                 print("Not Detected")
