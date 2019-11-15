@@ -87,9 +87,7 @@ while True:
             print("Not Detected")
             tracker = cv2.MultiTracker_create()
             temp_tracker = cv2.TrackerMOSSE_create()
-            temp_tracker_2 = cv2.TrackerMOSSE_create()
             tracker.add(temp_tracker, orig_frame, scoreboard)
-            tracker.add(temp_tracker_2, orig_frame, ball)
             frame = imutils.resize(frame, width=1280)
             cv2.imshow('game', frame)
             cv2.waitKey(1)
@@ -116,20 +114,15 @@ while True:
                 print("Not Detected")
                 tracker = cv2.MultiTracker_create()
                 temp_tracker = cv2.TrackerMOSSE_create()
-                temp_tracker_2 = cv2.TrackerKCF_create()
                 tracker.add(temp_tracker, orig_frame, scoreboard)
-                tracker.add(temp_tracker_2, orig_frame, ball)
     if cv2.waitKey(3) == ord("j") and not scoreboard_established:
         scoreboard_established = True
         first = True
         temp_tracker = cv2.TrackerMOSSE_create()
-        temp_tracker_2 = cv2.TrackerMOSSE_create()
         tracker = cv2.MultiTracker_create()
         scoreboard = cv2.selectROI('game', frame, fromCenter=False, showCrosshair=True)
-        ball = cv2.selectROI('game', frame, fromCenter=False, showCrosshair=True)
         orig_frame = frame.copy()
         tracker.add(temp_tracker, orig_frame, scoreboard)
-        tracker.add(temp_tracker_2, orig_frame, ball)
     if detected:
         cv2.imshow('game', frame)
     if cv2.waitKey(1) and 0xFF == ord('u'):
