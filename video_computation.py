@@ -1,5 +1,7 @@
+from collections import deque
 import cv2
 import imutils
+import numpy as np
 
 
 confidence_threshold = 0
@@ -65,9 +67,11 @@ detected = True
 orig_frame = []
 scoreboard = []
 tracker = []
-ball_color_lower = (12, 38, 9)
-ball_color_higher = (25, 88, 78)
-points = deque(maxlen=args["buffer"])
+ball_color_lower = (10, 5, 0)
+ball_color_higher = (100, 100, 100)
+# ball_color_lower = (12, 38, 9)
+# ball_color_higher = (25, 88, 78)
+points = deque(maxlen=64)
 
 vid = cv2.VideoCapture("2017 Golden State Warriors vs Cleveland Cavaliers Game 4.mov")
 '''with open("coco.names", "rt") as n:
@@ -79,7 +83,7 @@ neural_network.setPreferableTarget(cv2.dnn.DNN_TARGET_CPU)'''
 while True:
     # frame size : 720, 1280
     ret, frame = vid.read()
-    frame = imutils.resize(frame, width=600)
+    imutils.resize(frame, width=600)
     if not ret:
         print("Video over")
         break
@@ -131,7 +135,9 @@ while True:
         scoreboard = cv2.selectROI('game', frame, fromCenter=False, showCrosshair=True)
         orig_frame = frame.copy()
         tracker.add(temp_tracker, orig_frame, scoreboard)
-    if detected:
+    if not scoreboard_established:
         cv2.imshow('game', frame)
+    # if detected:
+        # cv2.imshow('game', frame)
     if cv2.waitKey(1) and 0xFF == ord('u'):
         break
