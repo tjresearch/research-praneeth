@@ -67,8 +67,8 @@ detected = True
 orig_frame = []
 scoreboard = []
 tracker = []
-ball_color_lower = (10, 5, 0)
-ball_color_higher = (100, 100, 100)
+ball_color_lower = (0, 93, 76)
+ball_color_higher = (21, 174, 130)
 # ball_color_lower = (12, 38, 9)
 # ball_color_higher = (25, 88, 78)
 points = deque(maxlen=64)
@@ -120,6 +120,21 @@ while True:
                 masked_frame = cv2.inRange(hsv_frame, ball_color_lower, ball_color_higher)
                 masked_frame = cv2.erode(masked_frame, None, iterations=2)
                 masked_frame = cv2.dilate(masked_frame, None, iterations=2)
+                contours = cv2.findContours(masked_frame.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+                contours = imutils.grab_contours(contours)
+                center = None
+                circle_list = []
+                if len(contours) == 0:
+                    contours_found = False
+                    print("mask did not find ball")
+                else:
+                    for x in contours:
+                        approx = cv2.approxPolyDP(x, 0.01 * cv2.arcLength(x, True), True)
+                        if len(approx) >= 8:
+                            circle_list.append(x)
+                    for c in circle_list:
+                        ((x, y), radius) = cv2.minEnclosingCircle(c)
+
                 cv2.imshow("game", masked_frame)
             else:
                 detected = False
