@@ -12,4 +12,4 @@ Given the input of a video of a NBA basketball game, the project will autonomous
 ## Run Instructions
 If you have a valid basketball game video, and you include the filename in video_computation.py, you can run the program.
 ## Sample Output
-The sample output will be a stat sheet along with the video of the basketball game with the ball tracked.  Right now, it is a video of the masked video to identify the ball.
+The sample output will be a stat sheet along with the video of the basketball game with the ball tracked.  Right now, it is a masked video to identify the ball.
