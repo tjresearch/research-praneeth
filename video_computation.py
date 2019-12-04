@@ -26,6 +26,7 @@ vid = cv2.VideoCapture("2017 Golden State Warriors vs Cleveland Cavaliers Game 4
 while True:
     # frame size : 720, 1280
     ret, frame = vid.read()
+    # frame size : 338, 600
     imutils.resize(frame, width=600)
     if not ret:
         print("Video over")
@@ -65,11 +66,21 @@ while True:
                 else:
                     for x in contours:
                         approx = cv2.approxPolyDP(x, 0.01 * cv2.arcLength(x, True), True)
-                        if len(approx) >= 8:
+                        if 10 <= len(approx) <= 12:
                             circle_list.append(x)
-                    '''for c in circle_list:
-                        ((x, y), radius) = cv2.minEnclosingCircle(c)'''
-                    cv2.drawContours(frame, circle_list, -1, (255, 0, 0), 2)
+                    min_error = float("inf")
+                    if len(circle_list) > 0:
+                        min_contour = circle_list[0]
+                    for c in circle_list:
+                        error = abs(978.3506508 - cv2.contourArea(c))
+                        if error < min_error:
+                            min_error = error
+                            min_contour = c.copy()
+                    ((x, y), radius) = cv2.minEnclosingCircle(min_contour)
+                    moments = cv2.moments(min_error)
+                    center = (int(moments["m10"] / moments["m00"]), int(moments["m01"] / moments["m00"]))
+                    cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
+                    cv2.circle(frame, center, 5, (0, 0, 255), -1)
                 cv2.imshow("game", frame)
             else:
                 detected = False
@@ -86,8 +97,26 @@ while True:
         orig_frame = frame.copy()
         tracker.add(temp_tracker, orig_frame, scoreboard)
     if not scoreboard_established:
+        blurred_frame = cv2.GaussianBlur(frame, (11, 11), 0)
+        hsv_frame = cv2.cvtColor(blurred_frame, cv2.COLOR_BGR2HSV)
+        masked_frame = cv2.inRange(hsv_frame, ball_color_lower, ball_color_higher)
+        masked_frame = cv2.erode(masked_frame, None, iterations=2)
+        masked_frame = cv2.dilate(masked_frame, None, iterations=2)
+        contours = cv2.findContours(masked_frame.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        contours = imutils.grab_contours(contours)
+        center = None
+        circle_list = []
+        if len(contours) == 0:
+            contours_found = False
+            print("mask did not find ball")
+        else:
+            for x in contours:
+                approx = cv2.approxPolyDP(x, 0.01 * cv2.arcLength(x, True), True)
+                if 10 <= len(approx) <= 12:
+                    circle_list.append(x)
+            '''for c in circle_list:
+                ((x, y), radius) = cv2.minEnclosingCircle(c)'''
+            cv2.drawContours(frame, circle_list, -1, (255, 0, 0), 2)
         cv2.imshow('game', frame)
-    # if detected:
-        # cv2.imshow('game', frame)
     if cv2.waitKey(1) and 0xFF == ord('u'):
         break
