@@ -71,16 +71,22 @@ while True:
                     min_error = float("inf")
                     if len(circle_list) > 0:
                         min_contour = circle_list[0]
+                    is_contour = False
                     for c in circle_list:
+                        ((x, y), radius) = cv2.minEnclosingCircle(c)
+                        '''if x < 100 or x > 500 or y < 40 or y > 300:
+                            continue'''
                         error = abs(978.3506508 - cv2.contourArea(c))
                         if error < min_error:
                             min_error = error
                             min_contour = c.copy()
-                    ((x, y), radius) = cv2.minEnclosingCircle(min_contour)
-                    moments = cv2.moments(min_error)
-                    center = (int(moments["m10"] / moments["m00"]), int(moments["m01"] / moments["m00"]))
-                    cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
-                    cv2.circle(frame, center, 5, (0, 0, 255), -1)
+                            is_contour = True
+                    if is_contour:
+                        ((x, y), radius) = cv2.minEnclosingCircle(min_contour)
+                        moments = cv2.moments(min_error)
+                        center = (int(moments["m10"] / moments["m00"]), int(moments["m01"] / moments["m00"]))
+                        cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
+                        cv2.circle(frame, center, 5, (0, 0, 255), -1)
                 cv2.imshow("game", frame)
             else:
                 detected = False
@@ -96,7 +102,7 @@ while True:
         scoreboard = cv2.selectROI('game', frame, fromCenter=False, showCrosshair=True)
         orig_frame = frame.copy()
         tracker.add(temp_tracker, orig_frame, scoreboard)
-    if not scoreboard_established:
+    '''if not scoreboard_established:
         blurred_frame = cv2.GaussianBlur(frame, (11, 11), 0)
         hsv_frame = cv2.cvtColor(blurred_frame, cv2.COLOR_BGR2HSV)
         masked_frame = cv2.inRange(hsv_frame, ball_color_lower, ball_color_higher)
@@ -114,9 +120,9 @@ while True:
                 approx = cv2.approxPolyDP(x, 0.01 * cv2.arcLength(x, True), True)
                 if 10 <= len(approx) <= 12:
                     circle_list.append(x)
-            '''for c in circle_list:
-                ((x, y), radius) = cv2.minEnclosingCircle(c)'''
-            cv2.drawContours(frame, circle_list, -1, (255, 0, 0), 2)
-        cv2.imshow('game', frame)
+            for c in circle_list:
+                ((x, y), radius) = cv2.minEnclosingCircle(c)
+            cv2.drawContours(frame, circle_list, -1, (255, 0, 0), 2)'''
+    cv2.imshow('game', frame)
     if cv2.waitKey(1) and 0xFF == ord('u'):
         break
