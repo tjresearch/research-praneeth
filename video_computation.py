@@ -72,18 +72,18 @@ while True:
                     if len(circle_list) > 0:
                         min_contour = circle_list[0]
                     is_contour = False
-                    for c in circle_list:
+                    circle_list.sort(key=lambda circle: abs(978.3506508 - cv2.contourArea(circle)))
+                    '''for c in circle_list:
                         ((x, y), radius) = cv2.minEnclosingCircle(c)
-                        '''if x < 100 or x > 500 or y < 40 or y > 300:
-                            continue'''
                         error = abs(978.3506508 - cv2.contourArea(c))
                         if error < min_error:
                             min_error = error
-                            min_contour = c.copy()
-                            is_contour = True
-                    if is_contour:
-                        ((x, y), radius) = cv2.minEnclosingCircle(min_contour)
-                        moments = cv2.moments(min_error)
+                            min_contour = c.copy()'''
+                    if len(circle_list) > 15:
+                        circle_list = circle_list[:15]
+                    for c in circle_list:
+                        ((x, y), radius) = cv2.minEnclosingCircle(c)
+                        moments = cv2.moments(c)
                         center = (int(moments["m10"] / moments["m00"]), int(moments["m01"] / moments["m00"]))
                         cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
                         cv2.circle(frame, center, 5, (0, 0, 255), -1)
