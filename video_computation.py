@@ -69,7 +69,7 @@ while True:
                 else:
                     for x in contours:
                         approx = cv2.approxPolyDP(x, 0.01 * cv2.arcLength(x, True), True)
-                        if 10 <= len(approx) <= 12:
+                        if 8 <= len(approx) <= 14:
                             circle_list.append(x)
                     min_error = float("inf")
                     if len(circle_list) > 0:
@@ -82,14 +82,14 @@ while True:
                         if error < min_error:
                             min_error = error
                             min_contour = c.copy()'''
-                    if len(circle_list) > 10:
-                        circle_list = circle_list[:10]
+                    if len(circle_list) > 15:
+                        circle_list = circle_list[:15]
                     cur_circles = []
                     for c in circle_list:
                         ((x, y), radius) = cv2.minEnclosingCircle(c)
                         moments = cv2.moments(c)
                         center = (int(moments["m10"] / moments["m00"]), int(moments["m01"] / moments["m00"]))
-                        if 240 <= int(y) <= 650 and 10 <= int(radius) <= 16:
+                        if 200 <= int(y) <= 500 and 10 <= int(radius) <= 16:
                             cur_circles.append([x, y, radius])
                         '''cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
                         cv2.circle(frame, center, 5, (0, 0, 255), -1)'''
@@ -98,15 +98,20 @@ while True:
                         min_distance = float("inf")
                         min_circle = cur_circles[0]
                         for a in cur_circles:
+                            cv2.circle(frame, (int(a[0]), int(a[1])), int(a[2]), (0, 255, 255), 2)
                             for b in prev_circles:
+                                cv2.circle(frame, (int(b[0]), int(b[1])), int(b[2]), (255, 0, 255), 2)
                                 distance = calculate_distance(a[0], b[0], a[1], b[1])
                                 if distance < min_distance and distance <= 7:
                                     min_distance = distance
                                     min_circle = a.copy()
-                        cv2.circle(frame, (int(min_circle[0]), int(min_circle[1])), int(min_circle[2]), (0, 255, 255), 2)
-                        cv2.circle(frame, (int(min_circle[0]), int(min_circle[1])), 5, (0, 0, 255), -1)
+                        '''cv2.circle(frame, (int(min_circle[0]), int(min_circle[1])), int(min_circle[2]), (0, 255, 255), 2)
+                        cv2.circle(frame, (int(min_circle[0]), int(min_circle[1])), 5, (0, 0, 255), -1)'''
                     prev_circles = cur_circles.copy()
                 cv2.imshow("game", frame)
+                key = cv2.waitKey(0)
+                while key not in [ord('q'), ord('k')]:
+                    key = cv2.waitKey(0)
             else:
                 tracker = cv2.MultiTracker_create()
                 temp_tracker = cv2.TrackerMOSSE_create()
