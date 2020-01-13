@@ -4,10 +4,6 @@ import imutils
 import math
 
 
-def calculate_distance(x1, x2, y1, y2):
-    return math.sqrt((x2-x1)**2 + (y2-y1)**2)
-
-
 confidence_threshold = 0
 suppresion_threshold = 1
 input_width = 640
@@ -24,9 +20,22 @@ ball_color_lower = (0, 93, 76)
 ball_color_higher = (21, 174, 130)
 points = deque(maxlen=64)
 prev_circles = []
+ball_color = (106, 61, 58)
 
 vid = cv2.VideoCapture("2017 Golden State Warriors vs Cleveland Cavaliers Game 4.mov")
 
+
+def calculate_distance(x1, x2, y1, y2):
+    return math.sqrt((x2-x1)**2 + (y2-y1)**2)
+
+
+def is_ball_color(wide, tall, picture):
+    for index in range(0, 3):
+        if abs(picture[wide, tall][index] - ball_color[index]) > 5 or abs(picture[wide + 1, tall][index] - ball_color[index]) > 5 or abs(picture[wide - 1, tall][index] - ball_color[index]) > 5 or abs(picture[wide, tall + 1][index] - ball_color[index]) > 5 or abs(picture[wide, tall - 1][index] - ball_color[index]) > 5:
+            return False
+    return True
+        
+        
 while True:
     # frame size : 720, 1280
     ret, frame = vid.read()
@@ -69,7 +78,7 @@ while True:
                 else:
                     for x in contours:
                         approx = cv2.approxPolyDP(x, 0.01 * cv2.arcLength(x, True), True)
-                        if 8 <= len(approx) <= 14:
+                        if 9 <= len(approx) <= 12:
                             circle_list.append(x)
                     min_error = float("inf")
                     if len(circle_list) > 0:
@@ -89,7 +98,7 @@ while True:
                         ((x, y), radius) = cv2.minEnclosingCircle(c)
                         moments = cv2.moments(c)
                         center = (int(moments["m10"] / moments["m00"]), int(moments["m01"] / moments["m00"]))
-                        if 200 <= int(y) <= 500 and 10 <= int(radius) <= 16:
+                        if 200 <= int(y) <= 500 and 10 <= int(radius) <= 16 and is_ball_color(x, y, frame):
                             cur_circles.append([x, y, radius])
                         '''cv2.circle(frame, (int(x), int(y)), int(radius), (0, 255, 255), 2)
                         cv2.circle(frame, center, 5, (0, 0, 255), -1)'''
